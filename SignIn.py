@@ -131,9 +131,9 @@ class SignIn(QWidget):
         query_student = QSqlQuery()
         query_admin = QSqlQuery()
 
-        student_sql = "SELECT * FROM user WHERE StudentId='%s'" % (student_id)
-        admin_sql = "SELECT * FROM admin WHERE id='%s'" % (student_id)
-        # student_sql = "SELECT * FROM user WHERE StudentId= '2016141462228'"
+        student_sql = "SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed FROM user WHERE StudentId='%s'" % (student_id)
+        admin_sql = "SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed FROM admin WHERE id='%s'" % (student_id)
+        # student_sql = "SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed FROM user WHERE StudentId= '2016141462228'"
 
         # 开始查找
         query_student.exec_(student_sql)

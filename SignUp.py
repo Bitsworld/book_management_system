@@ -184,7 +184,7 @@ class SignUpWidget(QWidget):
                 print('数据库连接失败')
 
             query = QSqlQuery()  # 实例化查询对象，执行和操作SQL语句
-            print(query.exec_("select * from user"))
+            print(query.exec_("SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed from user"))
 
             # 检测两次密码是否一致
             if (confirm_password != password):
@@ -200,7 +200,7 @@ class SignUpWidget(QWidget):
                 md5_password = password
 
                 # 检测数据库中是否存在相同账号
-                sql = "SELECT * FROM user WHERE StudentId = '%s'"%(id)
+                sql = "SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed FROM user WHERE StudentId = '%s'"%(id)
                 query.exec_(sql)  # 执行SQL语句
                 if (query.next()):  # query.next()判断是否存在记录
                     print(QMessageBox.warning(self, '警告', '账号已经存在，请重新输入', QMessageBox.Yes, QMessageBox.Yes ))
