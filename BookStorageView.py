@@ -7,7 +7,7 @@ from PyQt5.QtSql import *
 
 class BookStorageView(QWidget):
     def __init__(self):
-        super().__init__()
+        super(BookStorageView, self).__init__()
 
         # 初始化变量
         self.query_model = None # 查询模型
