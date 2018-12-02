@@ -184,29 +184,22 @@ class SignUpWidget(QWidget):
                 print('数据库连接失败')
 
             query = QSqlQuery()  # 实例化查询对象，执行和操作SQL语句
-            print(query.exec_("SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed from user"))
+            # print(query.exec_("select * from user"))
 
             # 检测两次密码是否一致
             if (confirm_password != password):
                 print(QMessageBox.warning(self, '警告', '两次密码不一致，请重新输入', QMessageBox.Yes, QMessageBox.Yes))
                 return
             elif(confirm_password == password):
-                #  对密码进行hash加密
-                '''
-                hash_md5 = hashlib.md5()
-                hash_md5.update(password.encode(encoding='utf-8'))
-                md5_password = hash_md5.hexdigest()
-                '''
-                md5_password = password
 
                 # 检测数据库中是否存在相同账号
-                sql = "SELECT BookId ,BookName,Author,Publisher,PublishTime,NumStorage, NumStorage-NumBorrowed FROM user WHERE StudentId = '%s'"%(id)
+                sql = "select * from user WHERE StudentId = '%s'" % (id)
                 query.exec_(sql)  # 执行SQL语句
-                if (query.next()):  # query.next()判断是否存在记录
+                if query.first():  # query.next()判断是否存在记录
                     print(QMessageBox.warning(self, '警告', '账号已经存在，请重新输入', QMessageBox.Yes, QMessageBox.Yes ))
                     return
                 else:  # 插入数据
-                    sql = "INSERT INTO user VALUES('%s','%s','%s','%s','%s', '%s', 0)" % (id, name, sex, department, grade, md5_password)
+                    sql = "INSERT INTO user VALUES('%s','%s','%s','%s','%s', '%s')" % (id, name, sex, department, grade, password)
                     db.exec_(sql)
                     db.commit()
 
