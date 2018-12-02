@@ -35,15 +35,19 @@ class AddBookDialog(QDialog):
         self.book_name_edit.setFixedWidth(180)
         self.book_name_edit.setFixedHeight(28)
 
+
+
         self.book_id_label = QLabel('书   号:')
-        self.setFont(font)
+        self.book_id_label.setFont(font)
         self.book_id_edit = QLineEdit()
-        self.setFont(font)
+        self.book_id_edit.setFont(font)
+
 
         self.author_label = QLabel('作   者:')
-        self.setFont(font)
+        self.author_label.setFont(font)
         self.author_edit = QLineEdit()
         self.author_edit.setFont(font)
+
 
         self.publisher_label = QLabel('出 版 社:')
         self.publisher_label.setFont(font)
@@ -52,8 +56,11 @@ class AddBookDialog(QDialog):
 
         self.abstract_label = QLabel('摘   要:')
         self.abstract_label.setFont(font)
-        self.abstract_edit = QLineEdit()
-        self.abstract_edit.setFont(font)
+        self.abstract_edit = QTextEdit()
+        abstract_font = QFont()
+        abstract_font.setPixelSize(15)
+        self.abstract_edit.setFont(abstract_font)
+        self.abstract_edit.setFixedHeight(100)
 
         self.publish_date_label = QLabel('出版日期:')
         self.publish_date_label.setFont(font)
@@ -67,11 +74,19 @@ class AddBookDialog(QDialog):
         self.add_num_edit.setFont(font)
         self.add_num_edit.setValidator(QIntValidator())
 
+
         self.add_book_button = QPushButton('添 加')
         button_font = QFont()
         button_font.setPixelSize(16)
+        self.add_book_button.setFont(button_font)
         self.add_book_button.setFixedHeight(32)
         self.add_book_button.setFixedWidth(140)
+
+        self.close_button = QPushButton('关闭')
+        self.close_button.setFont(button_font)
+        self.close_button.setFixedHeight(32)
+        self.close_button.setFixedWidth(140)
+
 
         self.layout.addRow('', self.title_label)
         self.layout.addRow(self.book_name_label, self.book_name_edit)
@@ -82,11 +97,14 @@ class AddBookDialog(QDialog):
         self.layout.addRow(self.publish_date_label, self.publish_date_edit)
         self.layout.addRow(self.add_num_label, self.add_num_edit)
         self.layout.addRow('',  self.add_book_button)
+        self.layout.addRow('', self.close_button)
+        self.layout.setSpacing(10)
 
         self.add_book_button.clicked.connect(self.add_book_button_clicked)
+        self.close_button.clicked.connect(self.close)
 
         self.setWindowTitle('添加书籍')
-        self.setGeometry(250, 250, 300, 500)
+        self.setGeometry(400, 250, 300, 500)
         self.setWindowIcon(QIcon("./imagesSourse/book_icon2.png"))
         self.setWindowModality(Qt.WindowModal)
         self.show()
@@ -96,7 +114,7 @@ class AddBookDialog(QDialog):
         book_id = self.book_id_edit.text()
         author = self.author_edit.text()
         publisher = self.publisher_edit.text()
-        abstract = self.abstract_edit.text()
+        abstract = self.abstract_edit.toPlainText()
         publish_date = self.publish_date_edit.text()
         add_num = self.add_num_edit.text()
 
