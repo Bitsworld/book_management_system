@@ -16,6 +16,10 @@ class UserStorageView(QWidget):
         self.total_record = 0  # 总记录数
         self.page_record = 10  # 每页数据数
 
+        self.drop_user_id = ''
+
+
+
         self.layout = QVBoxLayout()
         self.h_layout1 = QHBoxLayout()
         self.h_layout2 = QHBoxLayout()
@@ -84,6 +88,9 @@ class UserStorageView(QWidget):
         else:
             print('数据库连接失败')
 
+        self.drop_user_query = QSqlQuery()
+        self.user_book_query = QSqlQuery()
+
         # 表格布局设置
         self.tablet_view = QTableView()
         self.tablet_view.horizontalHeader().setStretchLastSection(True)
@@ -92,6 +99,7 @@ class UserStorageView(QWidget):
         self.query_model = QSqlQueryModel()
         self.search_button_clicked()
         self.tablet_view.setModel(self.query_model)
+        self.tablet_view.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.query_model.setHeaderData(0, Qt.Horizontal, '证号')
         self.query_model.setHeaderData(1, Qt.Horizontal, '姓名')
@@ -114,7 +122,7 @@ class UserStorageView(QWidget):
         # 初始化界面
         self.setWindowTitle('图书管理系统')
         self.setGeometry(100, 100, 700, 500)
-        self.setWindowIcon(QIcon("book_icon2.png"))
+        self.setWindowIcon(QIcon("user_icon2.png"))
         self.show()
 
     # 设置前进后退按钮是否可点击
@@ -169,6 +177,7 @@ class UserStorageView(QWidget):
             query_condition = "SELECT StudentId , Name, Sex, Department,Grade FROM user ORDER BY %s LIMIT %d, %d" % (
             condition_choice, index, self.page_record)
             self.query_model.setQuery(query_condition)
+            self.drop_user_query.exec_(query_condition)
             self.set_button_status()
             return
 
@@ -182,6 +191,7 @@ class UserStorageView(QWidget):
         condition_choice, s, condition_choice)
         print('执行到query_condition后面')
         self.query_model.setQuery(query_condition)
+        self.drop_user_query.exec_(query_condition)
         print('执行到query_model.setQuery后面')
         self.total_record = self.query_model.rowCount()
         print(self.total_record)
@@ -193,6 +203,7 @@ class UserStorageView(QWidget):
             print('执行到messagebox')
             query_condition = 'SELECT StudentId , Name, Sex, Department,Grade FROM user'
             self.query_model.setQuery(query_condition)
+            self.drop_user_query.exec_(query_condition)
             self.total_record = self.query_model.rowCount()
             self.total_page = int((self.total_record + self.page_record - 1) / self.page_record)
             label = '/' + str(int(self.total_page)) + '页'
@@ -201,6 +212,7 @@ class UserStorageView(QWidget):
             condition_choice, index, self.page_record)
             print('执行到query_condition后面，limit')
             self.query_model.setQuery(query_condition)
+            self.drop_user_query.exec_(query_condition)
             self.set_button_status()
             return
 
@@ -215,6 +227,7 @@ class UserStorageView(QWidget):
         print('执行到limit后面')
 
         self.query_model.setQuery(query_condition)
+        self.drop_user_query.exec_(query_condition)
         self.set_button_status()
         return
 
@@ -232,7 +245,7 @@ class UserStorageView(QWidget):
     # 向前翻页
     def pre_button_clicked(self):
         self.cur_page -= 1
-        if (self.cur_page <= 1):
+        if self.cur_page <= 1:
             self.cur_page = 1
         self.page_edit.setText(str(self.cur_page))
         index = (self.cur_page - 1) * self.page_record
@@ -263,6 +276,44 @@ class UserStorageView(QWidget):
         self.page_edit.setText(str(self.cur_page))
         self.record_query(index)
         return
+
+    # 删除用户
+    def drop_user(self):
+        indexs = self.tablet_view.selectionModel().selectedRows()
+        indexs_array = []
+        for index in sorted(indexs):
+            indexs_array.append(index.row()+1)
+            print('row %d is selected' % index.row())
+        # print(indexs_array)
+        i = 1
+        if not indexs_array:
+            print(QMessageBox.information(self, '提示', '请选择要删除的用户', QMessageBox.Yes, QMessageBox.Yes))
+        else:
+            self.drop_user_query.first()
+            while i != indexs_array[0] and self.drop_user_query.next():
+               i = i + 1
+            print(self.drop_user_query.value('StudentId'))
+            print(self.drop_user_query.value('Name'))
+            print(self.drop_user_query.value('Sex'))
+            print(self.drop_user_query.value('Department'))
+            print(self.drop_user_query.value('Grade'))
+            student_id = self.drop_user_query.value('StudentId')
+            student_name = self.drop_user_query.value('Name')
+            student_sex = self.drop_user_query.value('Sex')
+            student_department = self.drop_user_query.value('Department')
+            student_grade = self.drop_user_query.value('Grade')
+            user_book_sql = "SELECT * FROM user_book WHERE StudenrId = '%s" % (student_id)
+            self.user_book_query.exec_(user_book_sql)
+            if self.user_book_query.first():
+                print(QMessageBox.warning(self, '警告', '你选择的读者有图书未归还，无法删除！', QMessageBox.Yes, QMessageBox.Yes))
+                return
+            else:
+                drop_user_sql = "DELETE FROM user WHERE StudentId = '%s'" % student_id
+                if (QMessageBox.warning(self, "提醒","删除用户:\n学号：%s\n姓名：%s\n性别：%s\n系别：%s\n年级：%s\n用户一经删除将无法恢复，是否继续?" % (student_id, student_name, student_sex, student_department, student_grade), QMessageBox.Yes | QMessageBox.No, QMessageBox.No) == QMessageBox.No):
+                    return
+
+                self.drop_user_query.exec_(drop_user_sql)
+                self.search_button_clicked()
 
 
 if __name__ == '__main__':
